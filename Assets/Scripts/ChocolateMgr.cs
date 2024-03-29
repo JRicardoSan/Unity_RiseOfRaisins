@@ -11,14 +11,18 @@ using UnityEngine;
 
 public class ChocolateMgr : MonoBehaviour
 {
-    /* PUBLIC PARAMETERS */
+    /************************* PUBLIC PARAMETERS *****************************/
     /* Layer of the Main Character */
     public LayerMask characterLayer;
 
-    /* PRIVATE PARAMETERS */
+    /************************* PRIVATE PARAMETERS ****************************/
     /* Separation between cubes in angle with respect to loop base centre */
     private float angleCubeSeparation_deg;
 
+    /************************* PUBLIC FUNCTIONS ******************************/
+    /* None */
+
+    /************************* PRIVATE FUNCTIONS *****************************/
     /* Start() is called before the first frame update */
     void Start()
     {

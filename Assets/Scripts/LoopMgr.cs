@@ -116,7 +116,7 @@ public class LoopMgr : MonoBehaviour
         {
             cubeRotation_rad = (float)idx * angleCubeSeparation_rad + 0.5f*angleRemainder + angleCubeSeparation_rad;
             cookieBlocks[idx] = Instantiate(cookieBlock, new Vector3(0, 0, 0), Quaternion.identity);
-            cookieBlocks[idx].GetComponent<CookieBlockMgr>().setPosition(cubeRotation_rad, cubeToLoopCenter);
+            cookieBlocks[idx].GetComponent<CookieBlockMgr>().SetPose(cubeRotation_rad, cubeToLoopCenter);
             cookieBlocks[idx].transform.parent = transform;
 
             //GameObject.CreatePrimitive(PrimitiveType.Cube); 

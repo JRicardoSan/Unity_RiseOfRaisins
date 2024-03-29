@@ -11,7 +11,7 @@ using UnityEngine;
 
 public class CookieBlockMgr : MonoBehaviour
 {
-    /* PUBLIC PARAMETERS */
+    /************************* PUBLIC PARAMETERS *****************************/
     /* The maximum hits the cookie can receive before breaking */
     /* TODO: Make this magic number configurable somehow */
     public int maxIntegrity = 3;
@@ -22,62 +22,80 @@ public class CookieBlockMgr : MonoBehaviour
     /* The prefab of the chocolate chips */
     public GameObject chocolatePrefab;
 
-    /* PRIVATE PARAMETERS */
+    /************************* PRIVATE PARAMETERS ****************************/
+    /* Here will go the products resulting from the block breaking */
     private GameObject[] cookieContents;
-    private float angleInLoop;
-    private float distanceToLoopCenter;
-    
+    /* The angle at which the block is placed wrt the loop base centre */
+    private float angleInLoop_rad;
+    /* Distance between the block and the loop base centres */
+    private float distanceToLoopCentre;
 
-    /* Start() is called before the first frame update */
-    void Start()
+    /************************* PUBLIC FUNCTIONS ******************************/
+    /* setPose() serves to place the block with respect to the loop base centre 
+     * Input:
+     * - angle_rad: angle at which the block is positioned
+     * - radius_m: radius of the loop base */
+    public void SetPose( float angle_rad,
+                         float radius_m )
     {
-        // Measure of the block structural integrity
-        currentIntegrity = maxIntegrity;        
+        /* Position the block taking into account that PI/2 must be added to 
+         * consider the zero at upside direction (north) */
+        transform.position = new Vector3( 
+            radius_m * Mathf.Cos( angle_rad + Mathf.PI *0.5f ),
+            radius_m * Mathf.Sin( angle_rad + Mathf.PI *0.5f ),
+            0.0f );
+
+        /* Set its orientation */
+        transform.eulerAngles = new Vector3( 0.0f,
+                                             0.0f,
+                                             angle_rad*Mathf.Rad2Deg);
+
+        /* Set the base loop angle and the distance to base loop centre */
+        angleInLoop_rad = angle_rad;
+        distanceToLoopCentre = radius_m;
     }
 
-    /* CreateContents() will create either raisins or chocolate chips when
-     * the cookie block gets destroyed */
-    void CreateContents( bool characterFacingRight )
-    {
-        cookieContents = new GameObject[1];
-        // Randomnly could be a chocolate chip or a raisin
-        
-        if(Random.value<0.5f)
-        {
-            cookieContents[0] = Instantiate(chocolatePrefab,
-                                            transform.position,
-                                            transform.rotation);
-            cookieContents[0].transform.parent = transform.parent;
-        }
-        else
-        {
-            cookieContents[0] = Instantiate(raisinPrefab, transform.position, transform.rotation);
-            cookieContents[0].transform.parent = transform.parent; 
-            cookieContents[0].GetComponent<RaisinMgr>().SetLoopPositionInfo(distanceToLoopCenter-0.25f, angleInLoop);
-            cookieContents[0].GetComponent<RaisinMgr>().SetDirection( characterFacingRight );
-        }     
-        
-    }
-
-    // The block decreases the integrity score and evaluates if it needs to be destroyed
+    /* TakeDamage() decreases the integrity score and evaluates if it is needed
+     * to destroy the block
+     * Input:
+     *  - characterFacingRight: indicates whether the Main Character is facing
+     *    the right side of the screen or not */
     public void TakeDamage( bool characterFacingRight )
     {
+        /* Decrease the integrity score */
         currentIntegrity--;
         Debug.Log("Cookie Block gets damaged");
 
+        /* Evaluates if block must be destroyed or not */
         if(currentIntegrity <= 0)
         {
             GetDestroyed( characterFacingRight );
         }        
     }
 
-    // Procedure to disabl block and its children
+    /************************* PRIVATE FUNCTIONS *****************************/
+    /* Start() is called before the first frame update */
+    void Start()
+    {
+        /* The current integrity score is set as the maximum */
+        currentIntegrity = maxIntegrity;        
+    }
+
+    /* GetDestroyed() serves to disable the cookie block and its children
+     * Input:
+     *  - characterFacingRight: indicates whether the Main Character is facing
+     *    the right side of the screen or not */
     void GetDestroyed( bool characterFacingRight )
     {
         Debug.Log("Cookie Block destroyed");
+        /* The destruction of the cookie block entails bringing either
+         * chocolate chips or raisins */
         CreateContents( characterFacingRight );
-        // Tell the Loop Manager to allow the character to move where the block was
-        transform.parent.GetComponent<LoopMgr>().UpdateLimitAngles( 360.0f - transform.eulerAngles[2] );
+        /* Update the Loop Manager so the angle range the character can walk
+         * into increases */
+        transform.parent.GetComponent<LoopMgr>().UpdateLimitAngles( 360.0f - 
+            transform.eulerAngles[2] );
+        /* Disable this and its children */
         for( int idx = 0; idx < transform.childCount; idx++ )
         {
             transform.GetChild(idx).gameObject.SetActive(false);
@@ -87,15 +105,42 @@ public class CookieBlockMgr : MonoBehaviour
         this.enabled = false;
     }
 
-    // Serves to position the block with respect to the cookie
-    public void setPosition(float angle_rad, float radius)
+
+    /* CreateContents() will create either raisins or chocolate chips when
+     * the cookie block gets destroyed
+     * Input:
+     *  - characterFacingRight: indicates whether the Main Character is facing
+     *    the right side of the screen or not */
+    void CreateContents( bool characterFacingRight )
     {
-        // PI/2 is added to make the zero at north
-        transform.position = new Vector3( radius * Mathf.Cos( angle_rad + Mathf.PI *0.5f ),
-                                          radius * Mathf.Sin( angle_rad + Mathf.PI *0.5f ),
-                                          0.0f );
-        transform.eulerAngles = new Vector3(0.0f,0.0f,angle_rad*Mathf.Rad2Deg);
-        angleInLoop = angle_rad;
-        distanceToLoopCenter = radius;
+        /* Create new Game Object to store either chocolate or raisins */
+        cookieContents = new GameObject[1];
+        
+        /* 50% of having a raisin, 50% a chocolate chip */
+        if(Random.value<0.5f)
+        {
+            /* Great! We get a chocolate chip :) */
+            cookieContents[0] = Instantiate(chocolatePrefab,
+                                            transform.position,
+                                            transform.rotation);
+            cookieContents[0].transform.parent = transform.parent;
+        }
+        else
+        {
+            /* Oh no! We get a raisin :( */
+            cookieContents[0] = Instantiate(raisinPrefab,
+                                            transform.position, 
+                                            transform.rotation);
+            cookieContents[0].transform.parent = transform.parent; 
+
+            /* Update position of the raisin */
+            cookieContents[0].GetComponent<RaisinMgr>().SetLoopPositionInfo(
+                distanceToLoopCentre-0.25f,
+                angleInLoop_rad);
+                
+            /* Raisin will start moving towards the main character */
+            cookieContents[0].GetComponent<RaisinMgr>().SetDirection( 
+                characterFacingRight );
+        }            
     }
 }
