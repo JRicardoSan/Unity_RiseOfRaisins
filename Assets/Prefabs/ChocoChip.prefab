@@ -120,4 +120,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   characterLayer:
     serializedVersion: 2
-    m_Bits: 256
+    m_Bits: 0

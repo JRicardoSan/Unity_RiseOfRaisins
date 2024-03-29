@@ -70,7 +70,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: aa273ca6126d98d4f9d60f7372fc6204, type: 3}
       propertyPath: m_Layer
-      value: 7
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 5653519914247303419, guid: aa273ca6126d98d4f9d60f7372fc6204, type: 3}
       propertyPath: m_LocalRotation.w
@@ -239,5 +239,5 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   characterLayer:
     serializedVersion: 2
-    m_Bits: 256
+    m_Bits: 128
   mainCharacter: {fileID: 0}
